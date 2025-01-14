@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pengguna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            color: #444;
+        }
+
+        .profile-picture {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-picture img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4CAF50;
+        }
+
+        .user-info {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .user-info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-content button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-close {
+            background-color: #ccc;
+            color: #fff;
+        }
+
+        .btn-save {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .back-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .back-button:hover {
+            color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="Dashboard.html" class="back-button">
+            <img src="https://via.placeholder.com/20/4CAF50/FFFFFF?text=<" alt="Kembali">Kembali ke Dashboard
+        </a>
+        <div class="header">
+            <h1>Pengaturan Profil</h1>
+        </div>
+
+        <div class="profile-picture">
+            <img id="profileImage" src="https://via.placeholder.com/100" alt="Foto Profil">
+        </div>
+
+        <div class="user-info">
+            <p><strong>Email:</strong> <span id="userEmail"></span></p>
+            <p><strong>Nama Lengkap:</strong> <span id="userFullName">John Doe</span></p>
+            <p><strong>Nama Bisnis:</strong> <span id="businessName">My Business</span></p>
+            <p><strong>Alamat Kantor:</strong> <span id="officeAddress">123 Street Name, City</span></p>
+        </div>
+
+        <hr>
+
+        <div class="form-group">
+            <button onclick="openModal('editProfileModal')">Edit Profil</button>
+        </div>
+
+        <div class="form-group">
+            <button onclick="openModal('changePasswordModal')">Ganti Password</button>
+        </div>
+    </div>
+
+    <!-- Modal Edit Profil -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Profil</h2>
+            <form onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label for="profileImageInput">Foto Profil</label>
+                    <input type="file" id="profileImageInput" accept="image/*" onchange="changeProfilePicture(event)">
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Nama Lengkap</label>
+                    <input type="text" id="fullName" placeholder="Masukkan Nama Lengkap">
+                </div>
+                <div class="form-group">
+                    <label for="businessName">Nama Bisnis</label>
+                    <input type="text" id="businessNameInput" placeholder="Masukkan Nama Bisnis">
+                </div>
+                <div class="form-group">
+                    <label for="officeAddress">Alamat Kantor</label>
+                    <input type="text" id="officeAddressInput" placeholder="Masukkan Alamat Kantor">
+                </div>
+                <button type="submit" class="btn-save">Simpan</button>
+                <button type="button" class="btn-close" onclick="closeModal('editProfileModal')">Tutup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ganti Password -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>Ganti Password</h2>
+            <form onsubmit="savePassword(event)">
+                <div class="form-group">
+                    <label for="currentPassword">Password Lama</label>
+                    <input type="password" id="currentPassword" placeholder="Masukkan Password Lama">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password Baru</label>
+                    <input type="password" id="newPassword" placeholder="Masukkan Password Baru">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Konfirmasi Password Baru</label>
+                    <input type="password" id="confirmPassword" placeholder="Konfirmasi Password Baru">
+                </div>
+                <button type="submit" class="btn-save">Simpan</button>
+                <button type="button" class="btn-close" onclick="closeModal('changePasswordModal')">Tutup</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function savePassword(event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            const storedPassword = localStorage.getItem('userPassword') || 'defaultPassword';
+
+            if (currentPassword !== storedPassword) {
+                alert('Password lama salah!');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('Password baru dan konfirmasi tidak cocok!');
+                return;
+            }
+
+            localStorage.setItem('userPassword', newPassword);
+            alert('Password berhasil diperbarui!');
+            closeModal('changePasswordModal');
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const fullName = document.getElementById('fullName').value;
+            const businessName = document.getElementById('businessNameInput').value;
+            const officeAddress = document.getElementById('officeAddressInput').value;
+
+            localStorage.setItem('userFullName', fullName);
+            localStorage.setItem('businessName', businessName);
+            localStorage.setItem('officeAddress', officeAddress);
+
+            alert('Profil berhasil diperbarui!');
+            closeModal('editProfileModal');
+            displayUserInfo();
+        }
+
+        function changeProfilePicture(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImage').src = e.target.result;
+                    localStorage.setItem('profilePicture', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function displayUserInfo() {
+            const storedEmail = localStorage.getItem('userEmail') || 'default@example.com';
+            const storedFullName = localStorage.getItem('userFullName') || 'John Doe';
+            const storedBusinessName = localStorage.getItem('businessName') || 'My Business';
+            const storedOfficeAddress = localStorage.getItem('officeAddress') || '123 Street Name, City';
+            const storedProfilePicture = localStorage.getItem('profilePicture') || 'https://via.placeholder.com/100';
+
+            document.getElementById('userEmail').textContent = storedEmail;
+            document.getElementById('userFullName').textContent = storedFullName;
+            document.getElementById('businessName').textContent = storedBusinessName;
+            document.getElementById('officeAddress').textContent = storedOfficeAddress;
+            document.getElementById('profileImage').src = storedProfilePicture;
+        }
+
+        document.addEventListener('DOMContentLoaded', displayUserInfo);
+
+        if (!localStorage.getItem('userPassword')) {
+            localStorage.setItem('userPassword', 'defaultPassword');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6; /* Warna latar belakang abu terang */
+        }
+        .sidebar {
+            height: 100vh;
+            background-color: #1e40af; /* Warna biru donker sesuai gambar */
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            text-align: center;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            width: 100%;
+            text-align: left;
+            border-radius: 0.375rem;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #2563eb; /* Warna biru terang */
+        }
+        .sidebar a.active {
+            background-color: #1e40af; /* Biru donker lebih gelap */
+            font-weight: bold;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>STORE</h2>
+        <a href="Dashboard.html">Home</a>
+        <a href="stock.html">Stock Barang</a>
+        <a href="index.html">Menu dan Pesanan</a>
+        <a href="tentang-kami.html">Tentang Kami</a>
+    </div>
+
+    <div class="content">
+        <div class="container mt-5">
+            <h1 class="text-center text-3xl font-bold text-gray-800 mb-5">Stock Barang</h1>
+            <div class="bg-white p-4 rounded shadow-md">
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="addRow()">Tambah Barang</button>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead class="bg-blue-500 text-white">
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Barang</th>
+                            <th>Jumlah</th>
+                            <th>Keterangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTable">
+                        <!-- Rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal for Adding Item -->
+        <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addItemModalLabel">Tambah Barang</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addItemForm">
+                            <div class="mb-3">
+                                <label for="itemName" class="form-label">Nama Barang</label>
+                                <input type="text" class="form-control" id="itemName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemQuantity" class="form-label">Jumlah</label>
+                                <input type="number" class="form-control" id="itemQuantity" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="itemDescription" class="form-label">Keterangan</label>
+                                <textarea class="form-control" id="itemDescription" rows="3" required></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary w-full" onclick="saveItem()">Simpan</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let stockCounter = 1;
+
+        function loadLocalStorage() {
+            const savedData = JSON.parse(localStorage.getItem('stockData')) || [];
+            const stockTable = document.getElementById('stockTable');
+
+            savedData.forEach((item, index) => {
+                const stockRow = stockTable.insertRow();
+                stockRow.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${item.name}</td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-sm btn-success" onclick="adjustQuantity(this, 1)">+</button>
+                            <span>${item.quantity}</span>
+                            <button class="btn btn-sm btn-danger" onclick="adjustQuantity(this, -1)">-</button>
+                        </div>
+                    </td>
+                    <td>${item.description}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRow(this)">Hapus</button>
+                    </td>
+                `;
+            });
+        }
+
+        function addRow() {
+            const modal = new bootstrap.Modal(document.getElementById('addItemModal'));
+            modal.show();
+        }
+
+        function saveItem() {
+            const itemName = document.getElementById('itemName').value;
+            const itemQuantity = document.getElementById('itemQuantity').value;
+            const itemDescription = document.getElementById('itemDescription').value;
+            const stockTable = document.getElementById('stockTable');
+
+            if (itemName && itemQuantity && itemDescription) {
+                // Add to stock table
+                const stockRow = stockTable.insertRow();
+                stockRow.innerHTML = `
+                    <td>${stockCounter}</td>
+                    <td>${itemName}</td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <button class="btn btn-sm btn-success" onclick="adjustQuantity(this, 1)">+</button>
+                            <span>${itemQuantity}</span>
+                            <button class="btn btn-sm btn-danger" onclick="adjustQuantity(this, -1)">-</button>
+                        </div>
+                    </td>
+                    <td>${itemDescription}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteRow(this)">Hapus</button>
+                    </td>
+                `;
+
+                // Save to local storage
+                const savedData = JSON.parse(localStorage.getItem('stockData')) || [];
+                savedData.push({
+                    name: itemName,
+                    quantity: itemQuantity,
+                    description: itemDescription
+                });
+                localStorage.setItem('stockData', JSON.stringify(savedData));
+
+                stockCounter++;
+
+                // Reset and close modal
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemQuantity').value = '';
+                document.getElementById('itemDescription').value = '';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+                modal.hide();
+            }
+        }
+
+        function adjustQuantity(button, adjustment) {
+            const quantityElement = button.parentElement.querySelector('span');
+            let quantity = parseInt(quantityElement.textContent);
+            quantity = Math.max(0, quantity + adjustment);
+            quantityElement.textContent = quantity;
+
+            // Update local storage
+            const row = button.closest('tr');
+            const itemIndex = row.rowIndex - 1;
+            const savedData = JSON.parse(localStorage.getItem('stockData')) || [];
+            savedData[itemIndex].quantity = quantity;
+            localStorage.setItem('stockData', JSON.stringify(savedData));
+        }
+
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            const itemIndex = row.rowIndex - 1;
+            row.remove();
+            stockCounter--;
+
+            // Update local storage
+            const savedData = JSON.parse(localStorage.getItem('stockData')) || [];
+            savedData.splice(itemIndex, 1);
+            localStorage.setItem('stockData', JSON.stringify(savedData));
+        }
+
+        // Load data on page load
+        window.onload = loadLocalStorage;
+    </script>
+</body>
+</html>

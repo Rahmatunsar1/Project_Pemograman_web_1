@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Kasir</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      .sidebar-item:hover {
+        background-color: black;
+        color: white;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 flex">
+    <!-- Sidebar -->
+    <div class="bg-blue-700 text-white w-1/4 min-h-screen p-6">
+      <div class="flex items-center mb-10">
+        <i class="fas fa-shopping-cart text-3xl mr-2"></i>
+        <span class="text-3xl font-bold">Kasir</span>
+      </div>
+      <nav class="space-y-4">
+        <a class="block text-lg sidebar-item p-2 rounded" href="Dashboard.html">Home</a>
+        <a class="block text-lg sidebar-item p-2 rounded" href="stock.html">stock</a>
+        <a class="block text-lg sidebar-item p-2 rounded" href="#">Menu dan pesanan</a>
+        <a class="block text-lg sidebar-item p-2 rounded" href="tentang-kami.html">tentang kami</a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-10">
+      <div class="text-center mb-4">
+        <h1 class="text-4xl font-bold text-blue-700">Menu Kasir</h1>
+        <p class="text-gray-600">Pilih menu dan lihat pesanan Anda</p>
+      </div>
+
+      <!-- Menu Items -->
+      <div id="menuItemsContainer" class="grid grid-cols-3 gap-6 mb-10">
+        <!-- Menu items will go here -->
+      </div>
+
+      <!-- Cart (Pesanan) -->
+      <div class="bg-white p-6 rounded-lg shadow-xl">
+        <h2 class="text-xl font-semibold mb-4">Pesanan Anda</h2>
+        <div id="cartContainer" class="space-y-4">
+          <!-- Pesanan akan ditambahkan di sini -->
+        </div>
+        <div class="mt-6 text-center">
+          <button
+            class="bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition duration-300"
+            data-toggle="modal"
+            data-target="#receiptModal"
+            onclick="generateReceipt()"
+          >
+            Proses Pembayaran
+          </button>
+        </div>
+        <div class="mt-6 text-center">
+          <button
+            class="bg-green-700 text-white px-6 py-2 rounded-lg hover:bg-green-800 transition duration-300"
+            onclick="toggleMenuForm()"
+          >
+            Tambah Menu
+          </button>
+        </div>
+
+        <!-- Add Menu Form -->
+        <div id="addMenuForm" class="mt-6 hidden">
+          <form onsubmit="addMenu(event)">
+            <div class="mb-4">
+              <label for="menuName" class="block text-gray-700">Nama Menu</label>
+              <input
+                type="text"
+                id="menuName"
+                class="p-2 border rounded-md w-full"
+                placeholder="Nama Menu"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="menuPrice" class="block text-gray-700">Harga Menu (Rp)</label>
+              <input
+                type="number"
+                id="menuPrice"
+                class="p-2 border rounded-md w-full"
+                placeholder="Harga Menu"
+                required
+              />
+            </div>
+            <div class="mb-4">
+              <label for="menuImage" class="block text-gray-700">URL Gambar Menu</label>
+              <input
+                type="url"
+                id="menuImage"
+                class="p-2 border rounded-md w-full"
+                placeholder="URL Gambar Menu"
+                required
+              />
+            </div>
+            <div class="mb-4 text-center">
+              <button
+                type="submit"
+                class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition duration-300"
+              >
+                Tambah Menu
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Struk -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" role="dialog" aria-labelledby="receiptModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="receiptModalLabel">Struk Pembayaran</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <ul id="receiptContent" class="list-group">
+              <!-- Pesanan akan ditampilkan di sini -->
+            </ul>
+            <div class="mt-4">
+              <h4 id="totalAmount" class="text-lg font-semibold">Total: Rp 0</h4>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+            <button type="button" class="btn btn-primary" onclick="completePayment()">Selesai</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let cart = [];
+
+      document.addEventListener('DOMContentLoaded', () => {
+        loadMenus();
+      });
+
+      function toggleMenuForm() {
+        const form = document.getElementById('addMenuForm');
+        form.classList.toggle('hidden');
+      }
+
+      function addMenu(event) {
+        event.preventDefault();
+
+        const menuName = document.getElementById('menuName').value;
+        const menuPrice = document.getElementById('menuPrice').value;
+        const menuImage = document.getElementById('menuImage').value;
+
+        const newMenu = { name: menuName, price: parseInt(menuPrice), image: menuImage };
+        const menus = JSON.parse(localStorage.getItem('menus')) || [];
+        menus.push(newMenu);
+        localStorage.setItem('menus', JSON.stringify(menus));
+
+        addMenuToPage(newMenu);
+
+        document.getElementById('menuName').value = '';
+        document.getElementById('menuPrice').value = '';
+        document.getElementById('menuImage').value = '';
+        toggleMenuForm();
+      }
+
+      function loadMenus() {
+        const menus = JSON.parse(localStorage.getItem('menus')) || [];
+        menus.forEach(addMenuToPage);
+      }
+
+      function addMenuToPage(menu) {
+        const menuCard = document.createElement('div');
+        menuCard.classList.add('border', 'p-4', 'rounded-lg', 'shadow', 'bg-white');
+
+        menuCard.innerHTML = `
+          <img src="${menu.image}" alt="${menu.name}" class="w-full h-32 object-cover rounded-md mb-4">
+          <h3 class="text-lg font-semibold">${menu.name}</h3>
+          <p class="text-gray-600">Rp ${menu.price}</p>
+          <button class="bg-blue-700 text-white px-4 py-2 rounded-lg mt-4 hover:bg-blue-800 transition duration-300" onclick="addToCart('${menu.name}', ${menu.price})">Tambah ke Pesanan</button>
+        `;
+
+        const menuItemsContainer = document.getElementById('menuItemsContainer');
+        menuItemsContainer.appendChild(menuCard);
+      }
+
+      function addToCart(name, price) {
+        const cartContainer = document.getElementById('cartContainer');
+        const cartItem = document.createElement('div');
+        cartItem.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'border', 'rounded');
+        cartItem.innerHTML = `<span>${name}</span><span>Rp ${price}</span>`;
+        cartContainer.appendChild(cartItem);
+
+        cart.push({ name, price });
+      }
+
+      function generateReceipt() {
+        const receiptContent = document.getElementById('receiptContent');
+        const totalAmount = document.getElementById('totalAmount');
+        receiptContent.innerHTML = '';
+
+        let total = 0;
+        cart.forEach((item) => {
+          const listItem = document.createElement('li');
+          listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+          listItem.innerHTML = `<span>${item.name}</span><span>Rp ${item.price}</span>`;
+          receiptContent.appendChild(listItem);
+          total += item.price;
+        });
+
+        totalAmount.textContent = `Total: Rp ${total}`;
+      }
+
+      function completePayment() {
+        alert('Pembayaran berhasil. Terima kasih!');
+        cart = [];
+        document.getElementById('cartContainer').innerHTML = '';
+        document.getElementById('receiptContent').innerHTML = '';
+        document.getElementById('totalAmount').textContent = 'Total: Rp 0';
+      }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
